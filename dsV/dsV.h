@@ -52,6 +52,7 @@ private:
     void OpenFolder(wxCommandEvent&);
     void SetScale(wxCommandEvent&);
     bool IsChangeScale(const int percent);
+    void SaveData(void);
 
 public:
     dsVFrame();

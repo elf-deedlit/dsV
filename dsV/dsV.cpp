@@ -162,8 +162,12 @@ void dsVFrame::OnKeyUp(wxKeyEvent& ev)
     case 'V':
         if (ev.ControlDown())
             FromClipboard();
+        break;
+    case 'S':
+        if (ev.ControlDown())
+            SaveData();
+        break;
     default:
-        //_RPTF1(_CRT_WARN, "GetKeyCode=%d\n", ev.GetKeyCode());
         ev.Skip();
     }
 }
@@ -181,10 +185,6 @@ void dsVFrame::OnSize(wxSizeEvent& ev)
         ev.Skip();
         return;
     }
-    // EVT_SIZEはGetSize()のみ
-    // EVT_SIZINGはGetRectも取れる
-
-    //wxRect r = ev.GetRect();
     // ev.GetSize()だと、リサイズ用のサイズが入っているためちょっとまずい
     //wxSize s = ev.GetSize();
     //const int client_width = s.GetWidth();
@@ -276,10 +276,8 @@ void dsVFrame::AppendFiles(const wxArrayString& files)
                 wxString t = fn.GetPathWithSep();
                 if (globs.Index(t) == wxNOT_FOUND)
                     globs.Add(t);
-                //GlobDirectory(fn.GetPathWithSep());
             }
             else {
-                //GlobDirectory(fn.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR));
                 wxString t = fn.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
                 if (globs.Index(t) == wxNOT_FOUND)
                     globs.Add(t);
@@ -438,12 +436,6 @@ void dsVFrame::ChangeScale(const int step)
         scale = prev;
         return;
     }
-    //// サイズが規定以上になったらやめる
-    //if (draw_img.GetWidth() / 10 > MAX_DRAW_WIDTH / scale ||
-    //    draw_img.GetHeight() / 10 > MAX_DRAW_HEIGHT / scale) {
-    //    scale = prev;
-    //    return;
-    //}
     UpdateBitmap();
     Refresh();
 }
@@ -566,4 +558,16 @@ void dsVFrame::SetScale(wxCommandEvent& ev)
     }
     UpdateBitmap();
     Refresh();
+}
+
+void dsVFrame::SaveData(void)
+{
+    if (!draw_img.IsOk())
+        return;
+    wxFileDialog dlg(this, wxT("Imageを保存"), wxEmptyString, wxEmptyString,
+        wxT("png file|*.png"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    if (dlg.ShowModal() == wxID_CANCEL)
+        return;
+    wxString filename = dlg.GetPath();
+    draw_img.SaveFile(filename, wxBITMAP_TYPE_PNG);
 }
